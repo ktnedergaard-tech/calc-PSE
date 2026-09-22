@@ -1,0 +1,631 @@
+<title>Projektkalkulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f3ee;
+    --surface:#ffffff;
+    --surface-2:#efece3;
+    --ink:#1c211d;
+    --ink-soft:#5b645d;
+    --ink-faint:#8b9289;
+    --line:#dcd6c8;
+    --line-soft:#e9e4d6;
+    --accent:#2f6f5e;
+    --accent-ink:#173d33;
+    --accent-soft:#e2ede8;
+    --accent-soft-line:#c4dad2;
+    --good:#2f6f5e;
+    --good-soft:#e2ede8;
+    --warn:#96631f;
+    --warn-soft:#f2e6d2;
+    --bad:#a23f3f;
+    --bad-soft:#f4e0df;
+    --shadow: 0 1px 2px rgba(28,33,29,.05), 0 8px 24px -12px rgba(28,33,29,.18);
+    --radius-lg:20px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-display:'Fraunces', ui-serif, Georgia, serif;
+    --font-body:'Public Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15181a;
+      --surface:#1d2124;
+      --surface-2:#23282b;
+      --ink:#eeeee7;
+      --ink-soft:#a7ada4;
+      --ink-faint:#767d75;
+      --line:#33383a;
+      --line-soft:#292e30;
+      --accent:#5ea88f;
+      --accent-ink:#bfe6d7;
+      --accent-soft:#1f322d;
+      --accent-soft-line:#33493f;
+      --good:#5ea88f;
+      --good-soft:#1f322d;
+      --warn:#d9a75c;
+      --warn-soft:#3a3020;
+      --bad:#e0837f;
+      --bad-soft:#3a2523;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15181a;
+    --surface:#1d2124;
+    --surface-2:#23282b;
+    --ink:#eeeee7;
+    --ink-soft:#a7ada4;
+    --ink-faint:#767d75;
+    --line:#33383a;
+    --line-soft:#292e30;
+    --accent:#5ea88f;
+    --accent-ink:#bfe6d7;
+    --accent-soft:#1f322d;
+    --accent-soft-line:#33493f;
+    --good:#5ea88f;
+    --good-soft:#1f322d;
+    --warn:#d9a75c;
+    --warn-soft:#3a3020;
+    --bad:#e0837f;
+    --bad-soft:#3a2523;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    padding-inline:20px;
+    padding-block:28px 56px;
+  }
+  ::selection{ background:var(--accent-soft-line); }
+  h1,h2,h3{ font-family:var(--font-display); font-weight:600; margin:0; text-wrap:balance; }
+  .mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  a{ color:var(--accent); }
+
+  .wrap{ max-width:1120px; margin-inline:auto; }
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+    gap:16px 24px;
+    margin-bottom:28px;
+    padding-bottom:22px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; flex-direction:column; gap:6px; }
+  .brand .eyebrow{
+    font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:8px;
+  }
+  .brand .eyebrow::before{
+    content:""; width:7px; height:7px; border-radius:50%; background:var(--accent);
+    display:inline-block;
+  }
+  header.top h1{ font-size:clamp(26px,4vw,34px); letter-spacing:-.01em; }
+  header.top p{ margin:0; color:var(--ink-soft); font-size:14.5px; max-width:46ch; }
+  .top-meta{ font-size:13px; color:var(--ink-faint); text-align:right; line-height:1.5; }
+  .top-meta strong{ color:var(--ink-soft); font-weight:600; }
+
+  /* ---------- layout ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: minmax(280px,360px) 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .grid{ grid-template-columns:1fr; }
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- input card ---------- */
+  .panel{ padding:22px 22px 24px; position:sticky; top:calc(env(safe-area-inset-top,0px) + 16px); }
+  @media (max-width:860px){ .panel{ position:static; } }
+  .panel h2{ font-size:19px; margin-bottom:4px; }
+  .panel .sub{ font-size:13px; color:var(--ink-soft); margin:0 0 18px; }
+
+  .fieldset{ margin-bottom:20px; }
+  .fieldset:last-child{ margin-bottom:0; }
+  .fieldset legend{
+    font-size:11.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--ink-faint); padding:0; margin-bottom:10px;
+  }
+  .field-row{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+  .field-row:last-child{ margin-bottom:0; }
+  .field-row.two{ flex-direction:row; gap:10px; }
+  .field-row.two > div{ flex:1; display:flex; flex-direction:column; gap:5px; }
+  label{ font-size:13px; font-weight:500; color:var(--ink-soft); }
+  label .hint{ font-weight:400; color:var(--ink-faint); }
+
+  input[type=text], input[type=date], input[type=number]{
+    font:inherit; font-family:var(--font-body); font-size:14.5px;
+    color:var(--ink); background:var(--surface-2);
+    border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:9px 11px; width:100%;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  input[type=number]{ font-family:var(--font-mono); }
+  input:focus-visible{
+    outline:2px solid var(--accent); outline-offset:1px;
+    border-color:var(--accent); background:var(--surface);
+  }
+  .num-wrap{ position:relative; }
+  .num-wrap input{ padding-right:40px; }
+  .num-wrap .suffix{
+    position:absolute; right:11px; top:50%; transform:translateY(-50%);
+    font-size:12.5px; color:var(--ink-faint); pointer-events:none; font-family:var(--font-mono);
+  }
+
+  .reset-btn{
+    margin-top:18px; width:100%;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    background:transparent; border:1px solid var(--line); color:var(--ink-soft);
+    font:inherit; font-size:13px; font-weight:600; padding:9px 12px; border-radius:var(--radius-sm);
+    cursor:pointer; transition:border-color .15s ease, color .15s ease;
+  }
+  .reset-btn:hover{ border-color:var(--ink-faint); color:var(--ink); }
+
+  /* ---------- results ---------- */
+  .results{ display:flex; flex-direction:column; gap:18px; }
+
+  .headline{
+    padding:26px 26px 24px;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:20px;
+    align-items:center;
+  }
+  @media (max-width:640px){ .headline{ grid-template-columns:1fr; } }
+  .headline-main .label{
+    font-size:12px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint);
+    margin-bottom:8px;
+  }
+  .headline-figure{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .headline-figure .pct{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(44px,7vw,64px);
+    line-height:1; letter-spacing:-.02em;
+  }
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:600; padding:5px 11px 5px 9px; border-radius:999px;
+    white-space:nowrap;
+  }
+  .status-pill .dot{ width:7px; height:7px; border-radius:50%; }
+  .status-good{ background:var(--good-soft); color:var(--good); }
+  .status-good .dot{ background:var(--good); }
+  .status-warn{ background:var(--warn-soft); color:var(--warn); }
+  .status-warn .dot{ background:var(--warn); }
+  .status-bad{ background:var(--bad-soft); color:var(--bad); }
+  .status-bad .dot{ background:var(--bad); }
+
+  .headline-side{
+    display:flex; flex-direction:column; gap:14px; min-width:180px;
+    border-left:1px solid var(--line); padding-left:20px;
+  }
+  @media (max-width:640px){ .headline-side{ border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:16px; flex-direction:row; justify-content:space-between; } }
+  .side-stat .label{ font-size:11.5px; color:var(--ink-faint); margin-bottom:3px; }
+  .side-stat .value{ font-family:var(--font-mono); font-size:18px; font-weight:600; }
+
+  /* bar */
+  .bar-card{ padding:20px 22px 22px; }
+  .bar-card .bar-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; gap:10px; flex-wrap:wrap; }
+  .bar-card h3{ font-size:15px; }
+  .bar-card .bar-head .note{ font-size:12.5px; color:var(--ink-faint); }
+  .bar{
+    display:flex; height:34px; border-radius:10px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .bar .seg{ display:flex; align-items:center; justify-content:center; min-width:0; }
+  .bar .seg-cost{ background:var(--surface-2); color:var(--ink-soft); }
+  .bar .seg-margin{ background:var(--accent); color:#fff; }
+  .bar .seg span{
+    font-family:var(--font-mono); font-size:12.5px; font-weight:600;
+    padding-inline:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .bar-legend{ display:flex; gap:18px; margin-top:11px; flex-wrap:wrap; }
+  .bar-legend .item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft); }
+  .bar-legend .sw{ width:10px; height:10px; border-radius:3px; }
+  .sw-cost{ background:var(--surface-2); border:1px solid var(--line); }
+  .sw-margin{ background:var(--accent); }
+
+  /* detail table */
+  .detail-card{ padding:6px 0; }
+  .detail-card .dt-head{ padding:16px 22px 12px; }
+  .detail-card h3{ font-size:15px; }
+  dl.detail{ margin:0; }
+  dl.detail .row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:11px 22px; border-top:1px solid var(--line-soft);
+  }
+  dl.detail .row.subtotal{ background:var(--surface-2); }
+  dl.detail .row.grand{ background:var(--accent-soft); }
+  dl.detail dt{ font-size:13.5px; color:var(--ink-soft); }
+  dl.detail dt .tiny{ display:block; font-size:11.5px; color:var(--ink-faint); margin-top:1px; }
+  dl.detail dd{ margin:0; font-family:var(--font-mono); font-size:14.5px; font-weight:600; white-space:nowrap; }
+  dl.detail .row.grand dt, dl.detail .row.grand dd{ color:var(--accent-ink); }
+
+  footer.notes{
+    margin-top:26px; padding-top:18px; border-top:1px solid var(--line);
+    font-size:12.5px; color:var(--ink-faint); line-height:1.6;
+  }
+  footer.notes strong{ color:var(--ink-soft); }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">Salgsværktøj</span>
+      <h1>Projektkalkulator</h1>
+      <p>Beregn fakturerbare timer, omkostning og dækningsgrad for et konsulentprojekt — indtast projektperiode og vilkår til venstre.</p>
+    </div>
+    <div class="top-meta">
+      Beregningsgrundlag: <strong>7,4 t/dag</strong> · ferie <strong>2,08 dag/md.</strong><br>
+      Helligdage beregnes automatisk for DK
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- INPUT -->
+    <div class="card panel">
+      <h2>Projektoplysninger</h2>
+      <p class="sub">Felterne er udfyldt med et eksempel — erstat med jeres egne tal.</p>
+
+      <div class="fieldset">
+        <div class="field-row">
+          <label for="f-customer">Kundenavn</label>
+          <input type="text" id="f-customer" value="Virksomhed ABC" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <label for="f-candidate">Konsulent / kandidat</label>
+          <input type="text" id="f-candidate" value="Peter Pedal" autocomplete="off">
+        </div>
+      </div>
+
+      <fieldset class="fieldset">
+        <legend>Projektperiode</legend>
+        <div class="field-row two">
+          <div>
+            <label for="f-start">Start</label>
+            <input type="date" id="f-start" value="2027-01-01">
+          </div>
+          <div>
+            <label for="f-end">Afslutning</label>
+            <input type="date" id="f-end" value="2027-06-30">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Økonomi</legend>
+        <div class="field-row">
+          <label for="f-salary">Månedsløn <span class="hint">(inkl. 8% pension)</span></label>
+          <div class="num-wrap">
+            <input type="number" id="f-salary" value="50000" step="500" min="0">
+            <span class="suffix">DKK</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <label for="f-costs">Øvrige omkostninger <span class="hint">(hotel, transport mv.)</span></label>
+          <div class="num-wrap">
+            <input type="number" id="f-costs" value="25000" step="500" min="0">
+            <span class="suffix">DKK</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <label for="f-price">Salgspris</label>
+          <div class="num-wrap">
+            <input type="number" id="f-price" value="700" step="5" min="0">
+            <span class="suffix">DKK/t</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <button class="reset-btn" id="reset-btn" type="button">Nulstil til eksempel</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results">
+
+      <div class="card headline">
+        <div class="headline-main">
+          <div class="label">Dækningsgrad</div>
+          <div class="headline-figure">
+            <span class="pct mono" id="out-margin-pct">—</span>
+            <span class="status-pill" id="out-status"><span class="dot"></span><span id="out-status-text">—</span></span>
+          </div>
+        </div>
+        <div class="headline-side">
+          <div class="side-stat">
+            <div class="label">Dækning pr. time</div>
+            <div class="value mono" id="out-margin-hour">—</div>
+          </div>
+          <div class="side-stat">
+            <div class="label">Fakturerbare timer</div>
+            <div class="value mono" id="out-billable-mini">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bar-card">
+        <div class="bar-head">
+          <h3>Salgspris pr. time — fordeling</h3>
+          <span class="note" id="out-bar-note">—</span>
+        </div>
+        <div class="bar" id="out-bar">
+          <div class="seg seg-cost" id="seg-cost"><span id="seg-cost-label"></span></div>
+          <div class="seg seg-margin" id="seg-margin"><span id="seg-margin-label"></span></div>
+        </div>
+        <div class="bar-legend">
+          <div class="item"><span class="sw sw-cost"></span>Omkostning pr. time</div>
+          <div class="item"><span class="sw sw-margin"></span>Dækning pr. time</div>
+        </div>
+      </div>
+
+      <div class="card detail-card">
+        <div class="dt-head"><h3>Beregningsdetaljer</h3></div>
+        <dl class="detail">
+          <div class="row">
+            <dt>Arbejdsdage i perioden<span class="tiny">Hverdage ekskl. danske helligdage</span></dt>
+            <dd id="out-workdays">—</dd>
+          </div>
+          <div class="row">
+            <dt>Arbejdstimer i perioden<span class="tiny">Arbejdsdage × 7,4 t</span></dt>
+            <dd id="out-workhours">—</dd>
+          </div>
+          <div class="row">
+            <dt>Antal måneder<span class="tiny">Ift. gennemsnitligt antal arbejdsdage pr. måned</span></dt>
+            <dd id="out-months">—</dd>
+          </div>
+          <div class="row">
+            <dt>Optjent ferie<span class="tiny">Måneder × 2,08 dage × 7,04 t</span></dt>
+            <dd id="out-vacation">—</dd>
+          </div>
+          <div class="row subtotal">
+            <dt>Fakturerbare timer<span class="tiny">Arbejdstimer − optjent ferie</span></dt>
+            <dd id="out-billable">—</dd>
+          </div>
+          <div class="row">
+            <dt>Lønomkostning i perioden<span class="tiny">Månedsløn × antal måneder</span></dt>
+            <dd id="out-salarycost">—</dd>
+          </div>
+          <div class="row">
+            <dt>Øvrige omkostninger</dt>
+            <dd id="out-othercost">—</dd>
+          </div>
+          <div class="row subtotal">
+            <dt>Omkostning pr. fakturerbare time</dt>
+            <dd id="out-costperhour">—</dd>
+          </div>
+          <div class="row">
+            <dt>Salgspris pr. time</dt>
+            <dd id="out-price">—</dd>
+          </div>
+          <div class="row grand">
+            <dt>Dækning pr. time</dt>
+            <dd id="out-margin-hour2">—</dd>
+          </div>
+        </dl>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="notes">
+    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Danish public holidays (dynamic, any year) ----------
+  function easterSunday(year){
+    // Anonymous Gregorian algorithm
+    var a = year % 19, b = Math.floor(year/100), c = year % 100;
+    var d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+    var g = Math.floor((b - f + 1)/3), h = (19*a + b - d - g + 15) % 30;
+    var i = Math.floor(c/4), k = c % 4, l = (32 + 2*e + 2*i - h - k) % 7;
+    var m = Math.floor((a + 11*h + 22*l)/451);
+    var month = Math.floor((h + l - 7*m + 114)/31);
+    var day = ((h + l - 7*m + 114) % 31) + 1;
+    return new Date(year, month-1, day);
+  }
+  function addDays(d, n){ var r = new Date(d.getTime()); r.setDate(r.getDate()+n); return r; }
+  function dkey(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+
+  function danishHolidays(year){
+    var easter = easterSunday(year);
+    var list = [
+      new Date(year,0,1),           // Nytårsdag
+      addDays(easter,-3),           // Skærtorsdag
+      addDays(easter,-2),           // Langfredag
+      easter,                        // Påskedag
+      addDays(easter,1),            // 2. påskedag
+      addDays(easter,39),           // Kristi himmelfartsdag
+      addDays(easter,49),           // Pinsedag
+      addDays(easter,50),           // 2. pinsedag
+      new Date(year,11,25),         // Juledag
+      new Date(year,11,26)          // 2. juledag
+    ];
+    return list;
+  }
+
+  var holidayCache = {};
+  function holidaySetForYears(y1, y2){
+    var key = y1+"-"+y2;
+    if(holidayCache[key]) return holidayCache[key];
+    var set = new Set();
+    for(var y=y1; y<=y2; y++){
+      danishHolidays(y).forEach(function(d){ set.add(dkey(d)); });
+    }
+    holidayCache[key] = set;
+    return set;
+  }
+
+  function networkDays(start, end){
+    if(start > end) return 0;
+    var set = holidaySetForYears(start.getFullYear(), end.getFullYear());
+    var count = 0;
+    var cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    var last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    while(cur <= last){
+      var dow = cur.getDay();
+      if(dow !== 0 && dow !== 6 && !set.has(dkey(cur))){ count++; }
+      cur = addDays(cur,1);
+    }
+    return count;
+  }
+
+  // ---------- formatting ----------
+  var fmt0 = new Intl.NumberFormat('da-DK', {maximumFractionDigits:0});
+  var fmt1 = new Intl.NumberFormat('da-DK', {maximumFractionDigits:1, minimumFractionDigits:1});
+  var fmtKr = function(n){ return fmt0.format(Math.round(n)) + " kr."; };
+  var fmtKr1 = function(n){ return fmt1.format(n) + " kr."; };
+  var fmtPct = function(n){ return (n*100).toFixed(1).replace('.',',') + "%"; };
+
+  // ---------- elements ----------
+  var els = {
+    customer: document.getElementById('f-customer'),
+    candidate: document.getElementById('f-candidate'),
+    start: document.getElementById('f-start'),
+    end: document.getElementById('f-end'),
+    salary: document.getElementById('f-salary'),
+    costs: document.getElementById('f-costs'),
+    price: document.getElementById('f-price')
+  };
+
+  var DEFAULTS = {
+    customer:"Virksomhed ABC", candidate:"Peter Pedal",
+    start:"2027-01-01", end:"2027-06-30",
+    salary:50000, costs:25000, price:700
+  };
+
+  var STORE_KEY = 'pse-projektkalkulator-v1';
+  function saveState(){
+    try{
+      var state = {};
+      Object.keys(els).forEach(function(k){ state[k] = els[k].value; });
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    }catch(e){}
+  }
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return;
+      var state = JSON.parse(raw);
+      Object.keys(els).forEach(function(k){
+        if(state[k] !== undefined && state[k] !== "") els[k].value = state[k];
+      });
+    }catch(e){}
+  }
+
+  function setStatus(pct){
+    var pill = document.getElementById('out-status');
+    var text = document.getElementById('out-status-text');
+    pill.classList.remove('status-good','status-warn','status-bad');
+    if(!isFinite(pct)){
+      pill.classList.add('status-warn'); text.textContent = "Ingen data"; return;
+    }
+    if(pct >= 0.40){ pill.classList.add('status-good'); text.textContent = "Sund dækning"; }
+    else if(pct >= 0.25){ pill.classList.add('status-warn'); text.textContent = "Til grænsen"; }
+    else { pill.classList.add('status-bad'); text.textContent = "For lav"; }
+  }
+
+  function recalc(){
+    saveState();
+
+    var start = els.start.value ? new Date(els.start.value+"T00:00:00") : null;
+    var end = els.end.value ? new Date(els.end.value+"T00:00:00") : null;
+    var salary = parseFloat(els.salary.value) || 0;
+    var costs = parseFloat(els.costs.value) || 0;
+    var price = parseFloat(els.price.value) || 0;
+
+    var valid = start && end && end >= start;
+
+    var workdays=0, workhours=0, months=0, vacation=0, billable=0,
+        salaryCost=0, costPerHour=0, marginHour=0, marginPct=0;
+
+    if(valid){
+      workdays = networkDays(start, end);
+      workhours = workdays * 7.4;
+
+      var y = start.getFullYear();
+      var yearStart = new Date(y,0,1), yearEnd = new Date(y,11,31);
+      var avgMonthlyWorkdays = networkDays(yearStart, yearEnd) / 12;
+      months = avgMonthlyWorkdays > 0 ? workdays / avgMonthlyWorkdays : 0;
+
+      vacation = months * 2.08 * 7.04;
+      billable = workhours - vacation;
+      salaryCost = salary * months;
+      costPerHour = billable > 0 ? (salaryCost + costs) / billable : NaN;
+      marginHour = price - costPerHour;
+      marginPct = price > 0 ? marginHour / price : NaN;
+    }
+
+    document.getElementById('out-workdays').textContent = valid ? fmt0.format(workdays) + " dage" : "—";
+    document.getElementById('out-workhours').textContent = valid ? fmt1.format(workhours) + " t" : "—";
+    document.getElementById('out-months').textContent = valid ? fmt1.format(months) + " md." : "—";
+    document.getElementById('out-vacation').textContent = valid ? fmt1.format(vacation) + " t" : "—";
+    document.getElementById('out-billable').textContent = valid ? fmt1.format(billable) + " t" : "—";
+    document.getElementById('out-salarycost').textContent = valid ? fmtKr(salaryCost) : "—";
+    document.getElementById('out-othercost').textContent = valid ? fmtKr(costs) : "—";
+    document.getElementById('out-costperhour').textContent = valid && isFinite(costPerHour) ? fmtKr1(costPerHour) : "—";
+    document.getElementById('out-price').textContent = valid ? fmtKr1(price) : "—";
+    document.getElementById('out-margin-hour2').textContent = valid && isFinite(marginHour) ? fmtKr1(marginHour) : "—";
+
+    document.getElementById('out-margin-hour').textContent = valid && isFinite(marginHour) ? fmtKr1(marginHour) : "—";
+    document.getElementById('out-billable-mini').textContent = valid ? fmt1.format(billable) + " t" : "—";
+    document.getElementById('out-margin-pct').textContent = valid && isFinite(marginPct) ? fmtPct(marginPct) : "—";
+    setStatus(marginPct);
+
+    // bar
+    var barNote = document.getElementById('out-bar-note');
+    var segCost = document.getElementById('seg-cost');
+    var segMargin = document.getElementById('seg-margin');
+    var segCostLabel = document.getElementById('seg-cost-label');
+    var segMarginLabel = document.getElementById('seg-margin-label');
+
+    if(valid && isFinite(costPerHour) && price > 0){
+      var costShare = Math.max(0, Math.min(1, costPerHour / price));
+      var marginShare = 1 - costShare;
+      segCost.style.flex = costShare > 0.001 ? costShare : "0 0 0";
+      segMargin.style.flex = marginShare > 0.001 ? Math.max(marginShare,0) : "0 0 0";
+      segCostLabel.textContent = costShare > 0.12 ? fmtKr1(costPerHour) : "";
+      segMarginLabel.textContent = marginShare > 0.12 ? fmtKr1(marginHour) : "";
+      barNote.textContent = fmtKr1(price) + "/t i alt";
+    } else {
+      segCost.style.flex = "1"; segMargin.style.flex = "0 0 0";
+      segCostLabel.textContent = ""; segMarginLabel.textContent = "";
+      barNote.textContent = "—";
+    }
+  }
+
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    Object.keys(DEFAULTS).forEach(function(k){ els[k].value = DEFAULTS[k]; });
+    recalc();
+  });
+
+  Object.keys(els).forEach(function(k){
+    els[k].addEventListener('input', recalc);
+  });
+
+  loadState();
+  recalc();
+})();
+</script>
