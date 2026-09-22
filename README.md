@@ -14,19 +14,23 @@ GitHub Actions ved push til `claude/fervent-hypatia-m3udwf`, se
 ## Beregningslogik
 
 Inputs (venstre panel): kunde, konsulent, projektperiode, månedsløn (inkl. 8 %
-pension), øvrige omkostninger og salgspris pr. time.
+pension), øvrige omkostninger, salgspris pr. time og risiko timer pr. måned.
 
-Beregnet (højre panel), i samme rækkefølge som i den oprindelige regnearksmodel:
+Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmodel:
 
 1. **Arbejdsdage** = hverdage i perioden, ekskl. danske helligdage
 2. **Arbejdstimer** = arbejdsdage × 7,4 t
 3. **Antal måneder** = arbejdsdage ÷ (gennemsnitligt antal arbejdsdage pr. måned i startåret)
 4. **Optjent ferie** = måneder × 2,08 dage × 7,04 t
 5. **Fakturerbare timer** = arbejdstimer − optjent ferie
-6. **Lønomkostning** = månedsløn × måneder
-7. **Omkostning pr. fakturerbare time** = (lønomkostning + øvrige omkostninger) ÷ fakturerbare timer
-8. **Dækning pr. time** = salgspris − omkostning pr. time
-9. **Dækningsgrad** = dækning pr. time ÷ salgspris
+6. **Risiko timer** = måneder × risiko timer pr. måned (standard 7,4 t/md., ≈ 1 sygedag)
+7. **Effektive timer** = fakturerbare timer − risiko timer
+8. **Lønomkostning** = månedsløn × måneder
+9. **Omkostning pr. effektiv time** = (lønomkostning + øvrige omkostninger) ÷ effektive timer
+10. **Dækning pr. time** = salgspris − omkostning pr. effektiv time
+11. **Dækningsgrad** = dækning pr. time ÷ salgspris
+12. **Projekt omsætning** = effektive timer × salgspris
+13. **Projekt dækningsbidrag** = projekt omsætning − lønomkostning − øvrige omkostninger
 
 Danske helligdage (nytårsdag, skærtorsdag, langfredag, påskedag, 2. påskedag,
 Kristi himmelfartsdag, pinsedag, 2. pinsedag, juledag, 2. juledag) beregnes
@@ -37,3 +41,11 @@ fra 2024.
 
 Seneste indtastninger gemmes lokalt i browseren (`localStorage`), så feltværdier
 huskes ved genbesøg — data deles ikke og sendes ikke nogen steder.
+
+## Mobilvisning
+
+Under 860 px bredde (telefon) stables input- og resultatpanelerne, dato­felterne
+lægger sig oven på hinanden under 420 px, og en fast bjælke i bunden viser
+dækningsgrad og dækning pr. time konstant, mens man udfylder felterne — tryk på
+den for at hoppe ned til det fulde resultat. Inputfelter bruger 16 px skrift på
+mobil, så Safari på iPhone ikke zoomer ind ved fokus.

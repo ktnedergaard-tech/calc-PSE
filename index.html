@@ -111,6 +111,10 @@
   header.top p{ margin:0; color:var(--ink-soft); font-size:14.5px; max-width:46ch; }
   .top-meta{ font-size:13px; color:var(--ink-faint); text-align:right; line-height:1.5; }
   .top-meta strong{ color:var(--ink-soft); font-weight:600; }
+  @media (max-width:640px){
+    header.top{ flex-direction:column; align-items:flex-start; }
+    .top-meta{ text-align:left; }
+  }
 
   /* ---------- layout ---------- */
   .grid{
@@ -145,9 +149,13 @@
   .field-row{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
   .field-row:last-child{ margin-bottom:0; }
   .field-row.two{ flex-direction:row; gap:10px; }
-  .field-row.two > div{ flex:1; display:flex; flex-direction:column; gap:5px; }
+  .field-row.two > div{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+  @media (max-width:420px){
+    .field-row.two{ flex-direction:column; }
+  }
   label{ font-size:13px; font-weight:500; color:var(--ink-soft); }
   label .hint{ font-weight:400; color:var(--ink-faint); }
+  .field-note{ font-size:11.5px; color:var(--ink-faint); margin:5px 0 0; line-height:1.5; }
 
   input[type=text], input[type=date], input[type=number]{
     font:inherit; font-family:var(--font-body); font-size:14.5px;
@@ -168,6 +176,12 @@
     font-size:12.5px; color:var(--ink-faint); pointer-events:none; font-family:var(--font-mono);
   }
 
+  /* iOS Safari zooms the viewport on focus when an input's font-size is under 16px */
+  @media (max-width:860px){
+    input[type=text], input[type=date], input[type=number]{ font-size:16px; padding:11px 12px; }
+    .num-wrap input{ padding-right:46px; }
+  }
+
   .reset-btn{
     margin-top:18px; width:100%;
     display:flex; align-items:center; justify-content:center; gap:7px;
@@ -186,6 +200,7 @@
     grid-template-columns: 1fr auto;
     gap:20px;
     align-items:center;
+    scroll-margin-top:16px;
   }
   @media (max-width:640px){ .headline{ grid-template-columns:1fr; } }
   .headline-main .label{
@@ -217,6 +232,20 @@
   @media (max-width:640px){ .headline-side{ border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:16px; flex-direction:row; justify-content:space-between; } }
   .side-stat .label{ font-size:11.5px; color:var(--ink-faint); margin-bottom:3px; }
   .side-stat .value{ font-family:var(--font-mono); font-size:18px; font-weight:600; }
+
+  /* project economy */
+  .econ-card{ padding:20px 22px 22px; }
+  .econ-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; gap:10px; flex-wrap:wrap; }
+  .econ-head h3{ font-size:15px; }
+  .econ-head .note{ font-size:12.5px; color:var(--ink-faint); }
+  .econ-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:480px){ .econ-grid{ grid-template-columns:1fr; } }
+  .econ-stat{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:14px 16px;
+  }
+  .econ-stat .label{ font-size:11.5px; color:var(--ink-faint); margin-bottom:6px; }
+  .econ-stat .value{ font-family:var(--font-display); font-size:clamp(20px,4vw,25px); font-weight:600; }
 
   /* bar */
   .bar-card{ padding:20px 22px 22px; }
@@ -261,6 +290,36 @@
     font-size:12.5px; color:var(--ink-faint); line-height:1.6;
   }
   footer.notes strong{ color:var(--ink-soft); }
+
+  /* ---------- mobile summary bar ---------- */
+  .mobile-bar{ display:none; }
+  @media (max-width:860px){
+    body{ padding-bottom:96px; }
+    .mobile-bar{
+      display:block;
+      position:fixed; left:0; right:0; bottom:0; z-index:40;
+      background:var(--surface);
+      border-top:1px solid var(--line);
+      box-shadow:0 -10px 24px -14px rgba(28,33,29,.25);
+      padding:0 16px calc(env(safe-area-inset-bottom,0px));
+    }
+    .mobile-bar button{
+      all:unset; box-sizing:border-box;
+      display:flex; align-items:center; justify-content:space-between;
+      width:100%; padding:12px 2px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .mobile-bar .mb-label{
+      font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+      color:var(--ink-faint);
+    }
+    .mobile-bar .mb-sub{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+    .mobile-bar .mb-right{ display:flex; align-items:center; gap:10px; }
+    .mobile-bar .mb-pct{
+      font-family:var(--font-display); font-weight:600; font-size:24px; letter-spacing:-.01em;
+    }
+    .mobile-bar .mb-dot{ width:10px; height:10px; border-radius:50%; flex:none; }
+    .mobile-bar .mb-chevron{ color:var(--ink-faint); font-size:13px; }
+  }
 </style>
 
 <div class="wrap">
@@ -269,7 +328,7 @@
     <div class="brand">
       <span class="eyebrow">Salgsværktøj</span>
       <h1>Projektkalkulator</h1>
-      <p>Beregn fakturerbare timer, omkostning og dækningsgrad for et konsulentprojekt — indtast projektperiode og vilkår til venstre.</p>
+      <p>Beregn effektive timer, omkostning og dækningsgrad for et konsulentprojekt — indtast projektperiode og vilkår til venstre.</p>
     </div>
     <div class="top-meta">
       Beregningsgrundlag: <strong>7,4 t/dag</strong> · ferie <strong>2,08 dag/md.</strong><br>
@@ -300,7 +359,7 @@
         <div class="field-row two">
           <div>
             <label for="f-start">Start</label>
-            <input type="date" id="f-start" value="2027-01-01">
+            <input type="date" id="f-start" value="2027-01-31">
           </div>
           <div>
             <label for="f-end">Afslutning</label>
@@ -321,7 +380,7 @@
         <div class="field-row">
           <label for="f-costs">Øvrige omkostninger <span class="hint">(hotel, transport mv.)</span></label>
           <div class="num-wrap">
-            <input type="number" id="f-costs" value="25000" step="500" min="0">
+            <input type="number" id="f-costs" value="50000" step="500" min="0">
             <span class="suffix">DKK</span>
           </div>
         </div>
@@ -331,6 +390,18 @@
             <input type="number" id="f-price" value="700" step="5" min="0">
             <span class="suffix">DKK/t</span>
           </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Risiko</legend>
+        <div class="field-row">
+          <label for="f-risk">Risiko timer <span class="hint">pr. måned</span></label>
+          <div class="num-wrap">
+            <input type="number" id="f-risk" value="7.4" step="0.1" min="0">
+            <span class="suffix">t/md.</span>
+          </div>
+          <p class="field-note">Standard 7,4 t (≈ 1 sygedag/md.) trækkes fra som en sikkerhedsmargin, før timerne regnes for fakturerbare. Juster efter behov.</p>
         </div>
       </fieldset>
 
@@ -354,8 +425,25 @@
             <div class="value mono" id="out-margin-hour">—</div>
           </div>
           <div class="side-stat">
-            <div class="label">Fakturerbare timer</div>
-            <div class="value mono" id="out-billable-mini">—</div>
+            <div class="label">Effektive timer</div>
+            <div class="value mono" id="out-effective-mini">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card econ-card">
+        <div class="econ-head">
+          <h3>Projektøkonomi</h3>
+          <span class="note">For hele projektperioden</span>
+        </div>
+        <div class="econ-grid">
+          <div class="econ-stat">
+            <div class="label">Projekt omsætning</div>
+            <div class="value mono" id="out-revenue">—</div>
+          </div>
+          <div class="econ-stat">
+            <div class="label">Projekt dækningsbidrag</div>
+            <div class="value mono" id="out-contribution">—</div>
           </div>
         </div>
       </div>
@@ -399,6 +487,14 @@
             <dd id="out-billable">—</dd>
           </div>
           <div class="row">
+            <dt>Risiko timer<span class="tiny">Måneder × risiko timer/md.</span></dt>
+            <dd id="out-risk">—</dd>
+          </div>
+          <div class="row subtotal">
+            <dt>Effektive timer<span class="tiny">Fakturerbare timer − risiko timer</span></dt>
+            <dd id="out-effective">—</dd>
+          </div>
+          <div class="row">
             <dt>Lønomkostning i perioden<span class="tiny">Månedsløn × antal måneder</span></dt>
             <dd id="out-salarycost">—</dd>
           </div>
@@ -407,7 +503,7 @@
             <dd id="out-othercost">—</dd>
           </div>
           <div class="row subtotal">
-            <dt>Omkostning pr. fakturerbare time</dt>
+            <dt>Omkostning pr. effektiv time</dt>
             <dd id="out-costperhour">—</dd>
           </div>
           <div class="row">
@@ -425,9 +521,23 @@
   </div>
 
   <footer class="notes">
-    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
+    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. De fakturerbare timer reduceres yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer, som omkostning pr. time og dækningsgrad beregnes ud fra. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
   </footer>
 
+</div>
+
+<div class="mobile-bar" id="mobile-bar">
+  <button type="button" id="mobile-bar-btn" aria-label="Se fulde beregningsresultater">
+    <div>
+      <div class="mb-label">Dækningsgrad</div>
+      <div class="mb-sub" id="mb-sub">—</div>
+    </div>
+    <div class="mb-right">
+      <span class="mb-pct mono" id="mb-pct">—</span>
+      <span class="mb-dot" id="mb-dot"></span>
+      <span class="mb-chevron">↑</span>
+    </div>
+  </button>
 </div>
 
 <script>
@@ -507,16 +617,17 @@
     end: document.getElementById('f-end'),
     salary: document.getElementById('f-salary'),
     costs: document.getElementById('f-costs'),
-    price: document.getElementById('f-price')
+    price: document.getElementById('f-price'),
+    risk: document.getElementById('f-risk')
   };
 
   var DEFAULTS = {
     customer:"Virksomhed ABC", candidate:"Peter Pedal",
-    start:"2027-01-01", end:"2027-06-30",
-    salary:50000, costs:25000, price:700
+    start:"2027-01-31", end:"2027-06-30",
+    salary:50000, costs:50000, price:700, risk:7.4
   };
 
-  var STORE_KEY = 'pse-projektkalkulator-v1';
+  var STORE_KEY = 'pse-projektkalkulator-v2';
   function saveState(){
     try{
       var state = {};
@@ -535,16 +646,23 @@
     }catch(e){}
   }
 
+  function statusFor(pct){
+    if(!isFinite(pct)) return {cls:'status-warn', text:'Ingen data'};
+    if(pct >= 0.40) return {cls:'status-good', text:'Sund dækning'};
+    if(pct >= 0.25) return {cls:'status-warn', text:'Til grænsen'};
+    return {cls:'status-bad', text:'For lav'};
+  }
+
   function setStatus(pct){
+    var s = statusFor(pct);
     var pill = document.getElementById('out-status');
     var text = document.getElementById('out-status-text');
     pill.classList.remove('status-good','status-warn','status-bad');
-    if(!isFinite(pct)){
-      pill.classList.add('status-warn'); text.textContent = "Ingen data"; return;
-    }
-    if(pct >= 0.40){ pill.classList.add('status-good'); text.textContent = "Sund dækning"; }
-    else if(pct >= 0.25){ pill.classList.add('status-warn'); text.textContent = "Til grænsen"; }
-    else { pill.classList.add('status-bad'); text.textContent = "For lav"; }
+    pill.classList.add(s.cls);
+    text.textContent = s.text;
+
+    var dot = document.getElementById('mb-dot');
+    dot.style.background = s.cls === 'status-good' ? 'var(--good)' : (s.cls === 'status-bad' ? 'var(--bad)' : 'var(--warn)');
   }
 
   function recalc(){
@@ -555,11 +673,12 @@
     var salary = parseFloat(els.salary.value) || 0;
     var costs = parseFloat(els.costs.value) || 0;
     var price = parseFloat(els.price.value) || 0;
+    var risk = parseFloat(els.risk.value) || 0;
 
     var valid = start && end && end >= start;
 
-    var workdays=0, workhours=0, months=0, vacation=0, billable=0,
-        salaryCost=0, costPerHour=0, marginHour=0, marginPct=0;
+    var workdays=0, workhours=0, months=0, vacation=0, billable=0, riskHours=0, effective=0,
+        salaryCost=0, costPerHour=0, marginHour=0, marginPct=0, revenue=0, contribution=0;
 
     if(valid){
       workdays = networkDays(start, end);
@@ -572,10 +691,14 @@
 
       vacation = months * 2.08 * 7.04;
       billable = workhours - vacation;
+      riskHours = months * risk;
+      effective = billable - riskHours;
       salaryCost = salary * months;
-      costPerHour = billable > 0 ? (salaryCost + costs) / billable : NaN;
+      costPerHour = effective > 0 ? (salaryCost + costs) / effective : NaN;
       marginHour = price - costPerHour;
       marginPct = price > 0 ? marginHour / price : NaN;
+      revenue = effective * price;
+      contribution = revenue - salaryCost - costs;
     }
 
     document.getElementById('out-workdays').textContent = valid ? fmt0.format(workdays) + " dage" : "—";
@@ -583,6 +706,8 @@
     document.getElementById('out-months').textContent = valid ? fmt1.format(months) + " md." : "—";
     document.getElementById('out-vacation').textContent = valid ? fmt1.format(vacation) + " t" : "—";
     document.getElementById('out-billable').textContent = valid ? fmt1.format(billable) + " t" : "—";
+    document.getElementById('out-risk').textContent = valid ? fmt1.format(riskHours) + " t" : "—";
+    document.getElementById('out-effective').textContent = valid ? fmt1.format(effective) + " t" : "—";
     document.getElementById('out-salarycost').textContent = valid ? fmtKr(salaryCost) : "—";
     document.getElementById('out-othercost').textContent = valid ? fmtKr(costs) : "—";
     document.getElementById('out-costperhour').textContent = valid && isFinite(costPerHour) ? fmtKr1(costPerHour) : "—";
@@ -590,9 +715,15 @@
     document.getElementById('out-margin-hour2').textContent = valid && isFinite(marginHour) ? fmtKr1(marginHour) : "—";
 
     document.getElementById('out-margin-hour').textContent = valid && isFinite(marginHour) ? fmtKr1(marginHour) : "—";
-    document.getElementById('out-billable-mini').textContent = valid ? fmt1.format(billable) + " t" : "—";
+    document.getElementById('out-effective-mini').textContent = valid ? fmt1.format(effective) + " t" : "—";
     document.getElementById('out-margin-pct').textContent = valid && isFinite(marginPct) ? fmtPct(marginPct) : "—";
+    document.getElementById('out-revenue').textContent = valid ? fmtKr(revenue) : "—";
+    document.getElementById('out-contribution').textContent = valid ? fmtKr(contribution) : "—";
     setStatus(marginPct);
+
+    // mobile summary bar
+    document.getElementById('mb-pct').textContent = valid && isFinite(marginPct) ? fmtPct(marginPct) : "—";
+    document.getElementById('mb-sub').textContent = valid && isFinite(marginHour) ? (fmtKr1(marginHour) + "/t") : "—";
 
     // bar
     var barNote = document.getElementById('out-bar-note');
@@ -624,6 +755,14 @@
   Object.keys(els).forEach(function(k){
     els[k].addEventListener('input', recalc);
   });
+
+  var mobileBarBtn = document.getElementById('mobile-bar-btn');
+  if(mobileBarBtn){
+    mobileBarBtn.addEventListener('click', function(){
+      var target = document.querySelector('.headline');
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
 
   loadState();
   recalc();
