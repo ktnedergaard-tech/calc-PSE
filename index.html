@@ -153,7 +153,7 @@
 
   /* ---------- input card ---------- */
   .panel{ padding:22px 22px 24px; position:sticky; top:calc(env(safe-area-inset-top,0px) + 16px); }
-  @media (max-width:860px){ .panel{ position:static; } }
+  @media (max-width:860px){ .panel{ position:static; padding-left:14px; padding-right:14px; } }
   .panel h2{ font-size:19px; margin-bottom:4px; }
   .panel .sub{ font-size:13px; color:var(--ink-soft); margin:0 0 18px; }
 
@@ -218,8 +218,12 @@
     /* Safari renders the date value as localized text ("31. jan. 2027"),
        noticeably wider than Chromium's compact numeric format, and a
        native date control won't shrink below that content width - give
-       it tighter padding so it never has to push past its container. */
-    input[type=date]{ padding-left:8px; padding-right:6px; }
+       it as much room as possible so it never has to push past its
+       container: tighter group/input padding here, plus a narrower
+       group box below. */
+    input[type=date]{ padding-left:6px; padding-right:4px; }
+    .group{ padding-left:5px; padding-right:5px; }
+    .group .group-label{ left:4px; }
   }
 
   .reset-btn{
