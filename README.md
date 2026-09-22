@@ -5,6 +5,10 @@ dækningsgrad for et konsulentprojekt. Bygget som en moderne, mobilvenlig
 erstatning for `Calc_consultancy.xlsx`, så salgsteamet hurtigt kan lave beregninger
 uden at åbne Excel.
 
+Live: https://ktnedergaard-tech.github.io/calc-PSE/ (deployes automatisk via
+GitHub Actions ved push til `claude/fervent-hypatia-m3udwf`, se
+`.github/workflows/deploy-pages.yml`).
+
 Åbn `index.html` direkte i en browser — ingen build-trin eller server er nødvendig.
 
 ## Beregningslogik
