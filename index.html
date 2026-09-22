@@ -142,9 +142,25 @@
 
   .fieldset{ margin-bottom:20px; }
   .fieldset:last-child{ margin-bottom:0; }
-  .fieldset legend{
+
+  /* Custom-drawn group box — a native <fieldset>/<legend> renders with a
+     browser default border that looks noticeably different (and clunky)
+     across engines, iOS Safari in particular, so this replicates the
+     "label cut into the border" look with our own tokens instead. */
+  .group{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:19px 14px 14px;
+    margin-bottom:20px;
+  }
+  .group:last-child{ margin-bottom:0; }
+  .group .group-label{
+    position:absolute; top:-9px; left:11px;
+    background:var(--surface);
+    padding:0 6px;
     font-size:11.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
-    color:var(--ink-faint); padding:0; margin-bottom:10px;
+    color:var(--ink-faint);
   }
   .field-row{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
   .field-row:last-child{ margin-bottom:0; }
@@ -164,7 +180,9 @@
     padding:9px 11px; width:100%;
     transition:border-color .15s ease, background .15s ease;
   }
-  input[type=number]{ font-family:var(--font-mono); }
+  input[type=number]{ font-family:var(--font-mono); -moz-appearance:textfield; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
   input:focus-visible{
     outline:2px solid var(--accent); outline-offset:1px;
     border-color:var(--accent); background:var(--surface);
@@ -354,8 +372,8 @@
         </div>
       </div>
 
-      <fieldset class="fieldset">
-        <legend>Projektperiode</legend>
+      <div class="group">
+        <span class="group-label">Projektperiode</span>
         <div class="field-row two">
           <div>
             <label for="f-start">Start</label>
@@ -366,10 +384,10 @@
             <input type="date" id="f-end" value="2027-06-30">
           </div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="fieldset">
-        <legend>Økonomi</legend>
+      <div class="group">
+        <span class="group-label">Økonomi</span>
         <div class="field-row">
           <label for="f-salary">Månedsløn <span class="hint">(inkl. 8% pension)</span></label>
           <div class="num-wrap">
@@ -391,10 +409,10 @@
             <span class="suffix">DKK/t</span>
           </div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="fieldset">
-        <legend>Risiko</legend>
+      <div class="group">
+        <span class="group-label">Risiko</span>
         <div class="field-row">
           <label for="f-risk">Risiko timer <span class="hint">pr. måned</span></label>
           <div class="num-wrap">
@@ -403,7 +421,7 @@
           </div>
           <p class="field-note">Standard 7,4 t (≈ 1 sygedag/md.) trækkes fra som en sikkerhedsmargin, før timerne regnes for fakturerbare. Juster efter behov.</p>
         </div>
-      </fieldset>
+      </div>
 
       <button class="reset-btn" id="reset-btn" type="button">Nulstil til eksempel</button>
     </div>
