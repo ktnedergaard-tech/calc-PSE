@@ -13,8 +13,12 @@ GitHub Actions ved push til `claude/fervent-hypatia-m3udwf`, se
 
 ## Beregningslogik
 
-Inputs (venstre panel): kunde, konsulent, projektperiode, månedsløn (inkl. 8 %
-pension), øvrige omkostninger, salgspris pr. time og risiko timer pr. måned.
+Inputs (venstre panel): kunde, konsulent, projektperiode, øvrige omkostninger,
+salgspris pr. time og risiko timer pr. måned — plus enten en månedsløn eller en
+freelancer-timepris, afhængig af fanen valgt under Økonomi:
+
+- **Projektansat**: indtast månedsløn (inkl. 8 % pension)
+- **Freelance**: indtast den timepris freelanceren fakturerer
 
 Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmodel:
 
@@ -25,12 +29,17 @@ Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmode
 5. **Fakturerbare timer** = arbejdstimer − optjent ferie
 6. **Risiko timer** = måneder × risiko timer pr. måned (standard 7,4 t/md., ≈ 1 sygedag)
 7. **Effektive timer** = fakturerbare timer − risiko timer
-8. **Lønomkostning** = månedsløn × måneder
+8. **Lønomkostning**
+   - Projektansat: månedsløn × måneder
+   - Freelance: freelancer-timepris × effektive timer
 9. **Omkostning pr. effektiv time** = (lønomkostning + øvrige omkostninger) ÷ effektive timer
 10. **Dækning pr. time** = salgspris − omkostning pr. effektiv time
 11. **Dækningsgrad** = dækning pr. time ÷ salgspris
 12. **Projekt omsætning** = effektive timer × salgspris
 13. **Projekt dækningsbidrag** = projekt omsætning − lønomkostning − øvrige omkostninger
+
+Al tidsberegning (arbejdsdage, ferie, risiko, effektive timer) er den samme
+uanset fane — kun selve lønomkostningen beregnes forskelligt.
 
 Danske helligdage (nytårsdag, skærtorsdag, langfredag, påskedag, 2. påskedag,
 Kristi himmelfartsdag, pinsedag, 2. pinsedag, juledag, 2. juledag) beregnes

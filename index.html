@@ -180,6 +180,7 @@
     color:var(--ink-faint);
   }
   .field-row{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+  .field-row[hidden]{ display:none; }
   .field-row:last-child{ margin-bottom:0; }
   .field-row.two{ flex-direction:row; gap:10px; }
   .field-row.two > div{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
@@ -189,6 +190,21 @@
   label{ font-size:13px; font-weight:500; color:var(--ink-soft); }
   label .hint{ font-weight:400; color:var(--ink-faint); }
   .field-note{ font-size:11.5px; color:var(--ink-faint); margin:5px 0 0; line-height:1.5; }
+
+  .tabs{
+    display:flex; gap:3px; padding:3px;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+    margin-bottom:16px;
+  }
+  .tab-btn{
+    flex:1; font:inherit; font-size:13px; font-weight:600;
+    padding:7px 8px; border:none; border-radius:999px;
+    background:transparent; color:var(--ink-soft);
+    cursor:pointer; transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .tab-btn.active{ background:var(--surface); color:var(--accent-ink); box-shadow:var(--shadow); }
+  .tab-btn:hover:not(.active){ color:var(--ink); }
+  .tab-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
   input[type=text], input[type=date], input[type=number]{
     font:inherit; font-family:var(--font-body); font-size:14.5px;
@@ -416,11 +432,24 @@
 
       <div class="group">
         <span class="group-label">Økonomi</span>
-        <div class="field-row">
+
+        <div class="tabs" role="tablist" aria-label="Ansættelsestype">
+          <button type="button" class="tab-btn active" id="tab-employed" role="tab" aria-selected="true">Projektansat</button>
+          <button type="button" class="tab-btn" id="tab-freelance" role="tab" aria-selected="false">Freelance</button>
+        </div>
+
+        <div class="field-row" id="row-salary">
           <label for="f-salary">Månedsløn <span class="hint">(inkl. 8% pension)</span></label>
           <div class="num-wrap">
             <input type="number" id="f-salary" value="50000" step="500" min="0">
             <span class="suffix">DKK</span>
+          </div>
+        </div>
+        <div class="field-row" id="row-freelance-rate" hidden>
+          <label for="f-freelance-rate">Timepris <span class="hint">til freelancer</span></label>
+          <div class="num-wrap">
+            <input type="number" id="f-freelance-rate" value="500" step="25" min="0">
+            <span class="suffix">DKK/t</span>
           </div>
         </div>
         <div class="field-row">
@@ -541,7 +570,7 @@
             <dd id="out-effective">—</dd>
           </div>
           <div class="row">
-            <dt>Lønomkostning i perioden<span class="tiny">Månedsløn × antal måneder</span></dt>
+            <dt id="out-salarycost-label">Lønomkostning i perioden<span class="tiny" id="out-salarycost-note">Månedsløn × antal måneder</span></dt>
             <dd id="out-salarycost">—</dd>
           </div>
           <div class="row">
@@ -567,7 +596,7 @@
   </div>
 
   <footer class="notes">
-    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. De fakturerbare timer reduceres yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer, som omkostning pr. time og dækningsgrad beregnes ud fra. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
+    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. De fakturerbare timer reduceres yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer, som omkostning pr. time og dækningsgrad beregnes ud fra. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Under Økonomi vælges enten <strong>Projektansat</strong> (omkostning = månedsløn × antal måneder) eller <strong>Freelance</strong> (omkostning = freelancerens timepris × effektive timer) — resten af beregningen er den samme. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
   </footer>
 
 </div>
@@ -662,6 +691,7 @@
     start: document.getElementById('f-start'),
     end: document.getElementById('f-end'),
     salary: document.getElementById('f-salary'),
+    freelanceRate: document.getElementById('f-freelance-rate'),
     costs: document.getElementById('f-costs'),
     price: document.getElementById('f-price'),
     risk: document.getElementById('f-risk')
@@ -670,13 +700,41 @@
   var DEFAULTS = {
     customer:"Virksomhed ABC", candidate:"Peter Pedal",
     start:"2027-01-31", end:"2027-06-30",
-    salary:50000, costs:50000, price:700, risk:7.4
+    salary:50000, freelanceRate:500, costs:50000, price:700, risk:7.4
   };
+  var DEFAULT_MODE = 'employed';
 
-  var STORE_KEY = 'pse-projektkalkulator-v2';
+  var mode = DEFAULT_MODE; // 'employed' | 'freelance'
+  var tabEmployed = document.getElementById('tab-employed');
+  var tabFreelance = document.getElementById('tab-freelance');
+  var rowSalary = document.getElementById('row-salary');
+  var rowFreelanceRate = document.getElementById('row-freelance-rate');
+  var salaryCostLabel = document.getElementById('out-salarycost-label');
+  var salaryCostNote = document.getElementById('out-salarycost-note');
+
+  function applyMode(){
+    var isFreelance = mode === 'freelance';
+    tabEmployed.classList.toggle('active', !isFreelance);
+    tabFreelance.classList.toggle('active', isFreelance);
+    tabEmployed.setAttribute('aria-selected', String(!isFreelance));
+    tabFreelance.setAttribute('aria-selected', String(isFreelance));
+    rowSalary.hidden = isFreelance;
+    rowFreelanceRate.hidden = !isFreelance;
+    if(isFreelance){
+      salaryCostLabel.firstChild.textContent = 'Honorar til freelancer';
+      salaryCostNote.textContent = 'Timepris × effektive timer';
+    } else {
+      salaryCostLabel.firstChild.textContent = 'Lønomkostning i perioden';
+      salaryCostNote.textContent = 'Månedsløn × antal måneder';
+    }
+  }
+  tabEmployed.addEventListener('click', function(){ mode = 'employed'; applyMode(); recalc(); });
+  tabFreelance.addEventListener('click', function(){ mode = 'freelance'; applyMode(); recalc(); });
+
+  var STORE_KEY = 'pse-projektkalkulator-v3';
   function saveState(){
     try{
-      var state = {};
+      var state = { mode: mode };
       Object.keys(els).forEach(function(k){ state[k] = els[k].value; });
       localStorage.setItem(STORE_KEY, JSON.stringify(state));
     }catch(e){}
@@ -689,6 +747,7 @@
       Object.keys(els).forEach(function(k){
         if(state[k] !== undefined && state[k] !== "") els[k].value = state[k];
       });
+      if(state.mode === 'freelance' || state.mode === 'employed') mode = state.mode;
     }catch(e){}
   }
 
@@ -717,6 +776,7 @@
     var start = els.start.value ? new Date(els.start.value+"T00:00:00") : null;
     var end = els.end.value ? new Date(els.end.value+"T00:00:00") : null;
     var salary = parseFloat(els.salary.value) || 0;
+    var freelanceRate = parseFloat(els.freelanceRate.value) || 0;
     var costs = parseFloat(els.costs.value) || 0;
     var price = parseFloat(els.price.value) || 0;
     var risk = parseFloat(els.risk.value) || 0;
@@ -739,7 +799,7 @@
       billable = workhours - vacation;
       riskHours = months * risk;
       effective = billable - riskHours;
-      salaryCost = salary * months;
+      salaryCost = mode === 'freelance' ? (freelanceRate * effective) : (salary * months);
       costPerHour = effective > 0 ? (salaryCost + costs) / effective : NaN;
       marginHour = price - costPerHour;
       marginPct = price > 0 ? marginHour / price : NaN;
@@ -795,6 +855,8 @@
 
   document.getElementById('reset-btn').addEventListener('click', function(){
     Object.keys(DEFAULTS).forEach(function(k){ els[k].value = DEFAULTS[k]; });
+    mode = DEFAULT_MODE;
+    applyMode();
     recalc();
   });
 
@@ -811,6 +873,7 @@
   }
 
   loadState();
+  applyMode();
   recalc();
 })();
 </script>
