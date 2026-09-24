@@ -336,11 +336,33 @@
   dl.detail dd{ margin:0; font-family:var(--font-mono); font-size:14.5px; font-weight:600; white-space:nowrap; }
   dl.detail .row.grand dt, dl.detail .row.grand dd{ color:var(--accent-ink); }
 
-  footer.notes{
-    margin-top:26px; padding-top:18px; border-top:1px solid var(--line);
-    font-size:12.5px; color:var(--ink-faint); line-height:1.6;
+  /* ---------- FAQ ---------- */
+  .faq-card{ margin-top:26px; padding:6px 0 10px; }
+  .faq-card .faq-head{ padding:20px 22px 6px; }
+  .faq-card .faq-head h3{ font-size:17px; }
+  .faq-card .faq-head p{ margin:4px 0 0; font-size:13px; color:var(--ink-soft); }
+
+  .faq-item{ border-top:1px solid var(--line-soft); }
+  .faq-item summary{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:15px 22px; font-size:14px; font-weight:600; color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
   }
-  footer.notes strong{ color:var(--ink-soft); }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary .chevron{
+    flex:none; color:var(--ink-faint); font-size:11px;
+    transition:transform .18s ease;
+  }
+  .faq-item[open] summary .chevron{ transform:rotate(180deg); }
+  .faq-item[open] summary{ color:var(--accent-ink); }
+  .faq-item .faq-answer{
+    margin:0; padding:0 22px 18px;
+    font-size:13.5px; line-height:1.65; color:var(--ink-soft);
+    max-width:70ch;
+  }
+  .faq-item .faq-answer strong{ color:var(--ink); font-weight:600; }
+  .faq-item .faq-answer + .faq-answer{ margin-top:10px; }
 
   /* ---------- mobile summary bar ---------- */
   .mobile-bar{ display:none; }
@@ -586,9 +608,60 @@
     </div>
   </div>
 
-  <footer class="notes">
-    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. Under <strong>Projektansat</strong> reduceres de fakturerbare timer yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer — under <strong>Freelance</strong> udelades dette, da freelanceren selv bærer den risiko, og effektive timer er derfor lig fakturerbare timer. Omkostning pr. time og dækningsgrad beregnes altid ud fra de effektive timer. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Under Økonomi vælges enten <strong>Projektansat</strong> (omkostning = månedsløn × antal måneder) eller <strong>Freelance</strong> (omkostning = freelancerens timepris × effektive timer). Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
-  </footer>
+  <div class="card faq-card">
+    <div class="faq-head">
+      <h3>Ofte stillede spørgsmål</h3>
+      <p>Sådan hænger tallene i beregningen sammen, trin for trin.</p>
+    </div>
+
+    <details class="faq-item" open>
+      <summary>Hvordan beregnes antal arbejdsdage?<span class="chevron">▾</span></summary>
+      <p class="faq-answer">Som hverdage (mandag–fredag) i projektperioden, minus danske helligdage. Helligdagene beregnes automatisk ud fra påskedatoen for det pågældende år, så værktøjet virker for alle årstal — ikke kun en fast liste af kommende år. Store Bededag tæller ikke som fridag, i tråd med afskaffelsen fra 2024.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvad er forskellen på arbejdstimer, fakturerbare timer og effektive timer?<span class="chevron">▾</span></summary>
+      <p class="faq-answer"><strong>Arbejdstimer</strong> = arbejdsdage × 7,4 t.</p>
+      <p class="faq-answer"><strong>Fakturerbare timer</strong> = arbejdstimer − optjent ferie, hvor optjent ferie = antal måneder × 2,08 feriedage × 7,04 t.</p>
+      <p class="faq-answer"><strong>Effektive timer</strong> = fakturerbare timer − risiko timer (se næste spørgsmål). Det er dét tal, omkostning pr. time og dækningsgrad regnes ud fra.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvad er "Risiko timer", og hvorfor forsvinder de under Freelance?<span class="chevron">▾</span></summary>
+      <p class="faq-answer">Standard 7,4 t pr. måned (≈ 1 sygedag) trækkes fra som en sikkerhedsmargin for en <strong>projektansat</strong> konsulent — I betaler løn uanset sygdom eller andet fravær, så det tal skal med i, hvor mange timer I reelt kan forvente at fakturere kunden. Tallet kan justeres efter behov.</p>
+      <p class="faq-answer">En <strong>freelancer</strong> fakturerer derimod kun for de timer, der reelt bliver leveret, og bærer selv risikoen for fravær. Derfor er Risiko-feltet skjult under Freelance, og effektive timer er her lig fakturerbare timer.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvad er "Antal måneder", og hvorfor er det ikke bare et kalendertal?<span class="chevron">▾</span></summary>
+      <p class="faq-answer">Antal måneder = projektets arbejdsdage ÷ det gennemsnitlige antal arbejdsdage pr. måned i startåret (årets samlede arbejdsdage ÷ 12). Det giver et mere præcist måltal end at tælle kalendermåneder, især ved korte eller skæve projektperioder, og bruges til både lønomkostning, ferie og risiko-timer.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvad er forskellen på Projektansat og Freelance i beregningen?<span class="chevron">▾</span></summary>
+      <p class="faq-answer"><strong>Projektansat</strong>: lønomkostning = månedsløn (inkl. 8 % pension) × antal måneder.</p>
+      <p class="faq-answer"><strong>Freelance</strong>: lønomkostning = freelancerens timepris × effektive timer.</p>
+      <p class="faq-answer">Alt andet — arbejdsdage, arbejdstimer, ferie, øvrige omkostninger og salgspris — indgår på samme måde, uanset hvilken fane der er valgt under Økonomi.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvordan beregnes omkostning pr. time og dækningsgrad?<span class="chevron">▾</span></summary>
+      <p class="faq-answer"><strong>Omkostning pr. effektiv time</strong> = (lønomkostning + øvrige omkostninger) ÷ effektive timer.</p>
+      <p class="faq-answer"><strong>Dækning pr. time</strong> = salgspris − omkostning pr. effektiv time.</p>
+      <p class="faq-answer"><strong>Dækningsgrad</strong> = dækning pr. time ÷ salgspris — vist som den store procent øverst i resultaterne.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Hvad viser "Projektøkonomi" (omsætning og dækningsbidrag)?<span class="chevron">▾</span></summary>
+      <p class="faq-answer"><strong>Projekt omsætning</strong> = effektive timer × salgspris — den samlede forventede fakturering for hele perioden.</p>
+      <p class="faq-answer"><strong>Projekt dækningsbidrag</strong> = projekt omsætning − lønomkostning − øvrige omkostninger — den samlede forventede indtjening i kroner, ikke kun pr. time.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Gemmer værktøjet mine tal nogen steder?<span class="chevron">▾</span></summary>
+      <p class="faq-answer">Nej. Indtastningerne gemmes kun lokalt i din egen browser (localStorage), så du kan vende tilbage til samme udregning senere. Der sendes ikke noget til en server, og intet deles med andre — "Ryd alle felter" nulstiller også det gemte.</p>
+    </details>
+  </div>
 
 </div>
 

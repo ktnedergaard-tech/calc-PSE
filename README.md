@@ -44,6 +44,12 @@ Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmode
 Al anden tidsberegning (arbejdsdage, arbejdstimer, ferie) er den samme uanset
 fane.
 
+Den samme forklaring findes også i appen selv, som en FAQ-sektion (klap-ud
+spørgsmål/svar) nederst på siden — beregningen af antal arbejdsdage,
+arbejdstimer/fakturerbare timer/effektive timer, risiko-timer, antal måneder,
+Projektansat vs. Freelance, omkostning/dækningsgrad, projektøkonomi og
+lagring af data er hver sit spørgsmål der.
+
 Danske helligdage (nytårsdag, skærtorsdag, langfredag, påskedag, 2. påskedag,
 Kristi himmelfartsdag, pinsedag, 2. pinsedag, juledag, 2. juledag) beregnes
 dynamisk for et hvilket som helst år ud fra påskedatoen (Gauss' algoritme) —
