@@ -453,7 +453,7 @@
         </div>
       </div>
 
-      <button class="reset-btn" id="reset-btn" type="button">Nulstil til eksempel</button>
+      <button class="reset-btn" id="reset-btn" type="button">Ryd alle felter</button>
     </div>
 
     <!-- RESULTS -->
@@ -670,11 +670,6 @@
     risk: document.getElementById('f-risk')
   };
 
-  var DEFAULTS = {
-    customer:"Virksomhed ABC", candidate:"Peter Pedal",
-    start:"2027-01-31", end:"2027-06-30",
-    salary:50000, freelanceRate:500, costs:50000, price:700, risk:7.4
-  };
   var DEFAULT_MODE = 'employed';
 
   var mode = DEFAULT_MODE; // 'employed' | 'freelance'
@@ -837,7 +832,7 @@
   }
 
   document.getElementById('reset-btn').addEventListener('click', function(){
-    Object.keys(DEFAULTS).forEach(function(k){ els[k].value = DEFAULTS[k]; });
+    Object.keys(els).forEach(function(k){ els[k].value = ""; });
     mode = DEFAULT_MODE;
     applyMode();
     recalc();
