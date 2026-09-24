@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{ color-scheme: light dark; }
+  :root{ color-scheme: light; }
   :root{
     --bg:#f5f3ee;
     --surface:#ffffff;
@@ -47,50 +47,10 @@
     --font-body:'Public Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#15181a;
-      --surface:#1d2124;
-      --surface-2:#23282b;
-      --ink:#eeeee7;
-      --ink-soft:#a7ada4;
-      --ink-faint:#767d75;
-      --line:#33383a;
-      --line-soft:#292e30;
-      --accent:#5ea88f;
-      --accent-ink:#bfe6d7;
-      --accent-soft:#1f322d;
-      --accent-soft-line:#33493f;
-      --good:#5ea88f;
-      --good-soft:#1f322d;
-      --warn:#d9a75c;
-      --warn-soft:#3a3020;
-      --bad:#e0837f;
-      --bad-soft:#3a2523;
-      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#15181a;
-    --surface:#1d2124;
-    --surface-2:#23282b;
-    --ink:#eeeee7;
-    --ink-soft:#a7ada4;
-    --ink-faint:#767d75;
-    --line:#33383a;
-    --line-soft:#292e30;
-    --accent:#5ea88f;
-    --accent-ink:#bfe6d7;
-    --accent-soft:#1f322d;
-    --accent-soft-line:#33493f;
-    --good:#5ea88f;
-    --good-soft:#1f322d;
-    --warn:#d9a75c;
-    --warn-soft:#3a3020;
-    --bad:#e0837f;
-    --bad-soft:#3a2523;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
-  }
+  /* Locked to the light palette always - a shared sales tool should look
+     the same for everyone regardless of each viewer's device/OS theme
+     setting, rather than silently flipping to a dark palette for anyone
+     whose phone happens to be in dark mode. */
 
   *{box-sizing:border-box;}
   body{
