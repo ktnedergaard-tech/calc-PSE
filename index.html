@@ -350,6 +350,7 @@
     display:flex; justify-content:space-between; align-items:baseline; gap:16px;
     padding:11px 22px; border-top:1px solid var(--line-soft);
   }
+  dl.detail .row[hidden]{ display:none; }
   dl.detail .row.subtotal{ background:var(--surface-2); }
   dl.detail .row.grand{ background:var(--accent-soft); }
   dl.detail dt{ font-size:13.5px; color:var(--ink-soft); }
@@ -480,7 +481,7 @@
         </div>
       </div>
 
-      <div class="group">
+      <div class="group" id="group-risk">
         <span class="group-label">Risiko</span>
         <div class="field-row">
           <label for="f-risk">Risiko timer <span class="hint">pr. måned</span></label>
@@ -573,12 +574,12 @@
             <dt>Fakturerbare timer<span class="tiny">Arbejdstimer − optjent ferie</span></dt>
             <dd id="out-billable">—</dd>
           </div>
-          <div class="row">
+          <div class="row" id="row-risk">
             <dt>Risiko timer<span class="tiny">Måneder × risiko timer/md.</span></dt>
             <dd id="out-risk">—</dd>
           </div>
           <div class="row subtotal">
-            <dt>Effektive timer<span class="tiny">Fakturerbare timer − risiko timer</span></dt>
+            <dt>Effektive timer<span class="tiny" id="out-effective-note">Fakturerbare timer − risiko timer</span></dt>
             <dd id="out-effective">—</dd>
           </div>
           <div class="row">
@@ -608,7 +609,7 @@
   </div>
 
   <footer class="notes">
-    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. De fakturerbare timer reduceres yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer, som omkostning pr. time og dækningsgrad beregnes ud fra. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Under Økonomi vælges enten <strong>Projektansat</strong> (omkostning = månedsløn × antal måneder) eller <strong>Freelance</strong> (omkostning = freelancerens timepris × effektive timer) — resten af beregningen er den samme. Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
+    <strong>Forudsætninger:</strong> Arbejdsdage udregnes som hverdage minus danske helligdage (beregnet automatisk for det relevante år — Store Bededag er ikke medregnet, i tråd med afskaffelsen fra 2024). Arbejdstid er 7,4 timer pr. dag, og optjent ferie er sat til 2,08 dage pr. måned á 7,04 time. Under <strong>Projektansat</strong> reduceres de fakturerbare timer yderligere med et fast antal risiko-timer pr. måned (standard 7,4 t, svarende til ca. 1 sygedag) for at nå frem til de effektive timer — under <strong>Freelance</strong> udelades dette, da freelanceren selv bærer den risiko, og effektive timer er derfor lig fakturerbare timer. Omkostning pr. time og dækningsgrad beregnes altid ud fra de effektive timer. Antal måneder beregnes ud fra projektets arbejdsdage set i forhold til det gennemsnitlige antal arbejdsdage pr. måned i startåret. Under Økonomi vælges enten <strong>Projektansat</strong> (omkostning = månedsløn × antal måneder) eller <strong>Freelance</strong> (omkostning = freelancerens timepris × effektive timer). Alle beløb er i DKK. Værktøjet gemmer jeres seneste indtastninger lokalt i browseren.
   </footer>
 
 </div>
@@ -723,6 +724,9 @@
   var rowFreelanceRate = document.getElementById('row-freelance-rate');
   var salaryCostLabel = document.getElementById('out-salarycost-label');
   var salaryCostNote = document.getElementById('out-salarycost-note');
+  var groupRisk = document.getElementById('group-risk');
+  var rowRisk = document.getElementById('row-risk');
+  var effectiveNote = document.getElementById('out-effective-note');
 
   function applyMode(){
     var isFreelance = mode === 'freelance';
@@ -732,12 +736,19 @@
     tabFreelance.setAttribute('aria-selected', String(isFreelance));
     rowSalary.hidden = isFreelance;
     rowFreelanceRate.hidden = !isFreelance;
+    // Freelancers bill only for hours they actually deliver, so the
+    // sygedage-style risk buffer we apply to an employee's hours doesn't
+    // apply here - they carry that risk themselves.
+    groupRisk.hidden = isFreelance;
+    rowRisk.hidden = isFreelance;
     if(isFreelance){
       salaryCostLabel.firstChild.textContent = 'Honorar til freelancer';
       salaryCostNote.textContent = 'Timepris × effektive timer';
+      effectiveNote.textContent = '= Fakturerbare timer (freelanceren dækker selv risiko)';
     } else {
       salaryCostLabel.firstChild.textContent = 'Lønomkostning i perioden';
       salaryCostNote.textContent = 'Månedsløn × antal måneder';
+      effectiveNote.textContent = 'Fakturerbare timer − risiko timer';
     }
   }
   tabEmployed.addEventListener('click', function(){ mode = 'employed'; applyMode(); recalc(); });
@@ -809,7 +820,7 @@
 
       vacation = months * 2.08 * 7.04;
       billable = workhours - vacation;
-      riskHours = months * risk;
+      riskHours = mode === 'freelance' ? 0 : months * risk;
       effective = billable - riskHours;
       salaryCost = mode === 'freelance' ? (freelanceRate * effective) : (salary * months);
       costPerHour = effective > 0 ? (salaryCost + costs) / effective : NaN;

@@ -13,12 +13,15 @@ GitHub Actions ved push til `claude/fervent-hypatia-m3udwf`, se
 
 ## Beregningslogik
 
-Inputs (venstre panel): kunde, konsulent, projektperiode, øvrige omkostninger,
-salgspris pr. time og risiko timer pr. måned — plus enten en månedsløn eller en
-freelancer-timepris, afhængig af fanen valgt under Økonomi:
+Inputs (venstre panel): kunde, konsulent, projektperiode, øvrige omkostninger og
+salgspris pr. time — plus enten en månedsløn eller en freelancer-timepris,
+afhængig af fanen valgt under Økonomi:
 
-- **Projektansat**: indtast månedsløn (inkl. 8 % pension)
-- **Freelance**: indtast den timepris freelanceren fakturerer
+- **Projektansat**: indtast månedsløn (inkl. 8 % pension) og risiko timer pr.
+  måned (standard 7,4 t, ≈ 1 sygedag) — trækkes fra som sikkerhedsmargin
+- **Freelance**: indtast den timepris freelanceren fakturerer. Ingen
+  risiko-timer, da freelanceren kun fakturerer for timer der reelt leveres og
+  selv bærer den risiko — sektionen er derfor skjult i denne fane
 
 Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmodel:
 
@@ -27,8 +30,8 @@ Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmode
 3. **Antal måneder** = arbejdsdage ÷ (gennemsnitligt antal arbejdsdage pr. måned i startåret)
 4. **Optjent ferie** = måneder × 2,08 dage × 7,04 t
 5. **Fakturerbare timer** = arbejdstimer − optjent ferie
-6. **Risiko timer** = måneder × risiko timer pr. måned (standard 7,4 t/md., ≈ 1 sygedag)
-7. **Effektive timer** = fakturerbare timer − risiko timer
+6. **Risiko timer** = måneder × risiko timer pr. måned (kun Projektansat — 0 for Freelance)
+7. **Effektive timer** = fakturerbare timer − risiko timer (= fakturerbare timer for Freelance)
 8. **Lønomkostning**
    - Projektansat: månedsløn × måneder
    - Freelance: freelancer-timepris × effektive timer
@@ -38,8 +41,8 @@ Beregnet (højre panel), i samme rækkefølge som i den opdaterede regnearksmode
 12. **Projekt omsætning** = effektive timer × salgspris
 13. **Projekt dækningsbidrag** = projekt omsætning − lønomkostning − øvrige omkostninger
 
-Al tidsberegning (arbejdsdage, ferie, risiko, effektive timer) er den samme
-uanset fane — kun selve lønomkostningen beregnes forskelligt.
+Al anden tidsberegning (arbejdsdage, arbejdstimer, ferie) er den samme uanset
+fane.
 
 Danske helligdage (nytårsdag, skærtorsdag, langfredag, påskedag, 2. påskedag,
 Kristi himmelfartsdag, pinsedag, 2. pinsedag, juledag, 2. juledag) beregnes
