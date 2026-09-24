@@ -178,7 +178,7 @@
   .tab-btn:hover:not(.active){ color:var(--ink); }
   .tab-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
-  input[type=text], input[type=date], input[type=number]{
+  input[type=text], input[type=number]{
     font:inherit; font-family:var(--font-body); font-size:14.5px;
     color:var(--ink); background:var(--surface-2);
     border:1px solid var(--line); border-radius:var(--radius-sm);
@@ -199,19 +199,37 @@
     font-size:12.5px; color:var(--ink-faint); pointer-events:none; font-family:var(--font-mono);
   }
 
+  /* Safari renders a date input's value as localized text ("31. jan. 2027"),
+     wider than Chromium's compact numeric format, and won't shrink the
+     native control below that content's width - no matter what width or
+     padding is set on the input itself, it can render wider than its box
+     and break alignment with every other field. Padding tweaks can't fix
+     that (tried three times). Guarantee the width instead: draw the
+     border/background/radius on a wrapper with overflow:hidden, and make
+     the input inside transparent and borderless - however wide Safari
+     wants to render it internally, only the wrapper's box is ever visible. */
+  .date-wrap{
+    overflow:hidden; width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line); border-radius:var(--radius-sm);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .date-wrap:focus-within{
+    outline:2px solid var(--accent); outline-offset:1px;
+    border-color:var(--accent); background:var(--surface);
+  }
+  input[type=date]{
+    display:block; font:inherit; font-family:var(--font-body); font-size:14.5px;
+    color:var(--ink); background:transparent;
+    border:none; border-radius:0;
+    padding:9px 11px; width:100%;
+  }
+  input[type=date]:focus-visible{ outline:none; }
+
   /* iOS Safari zooms the viewport on focus when an input's font-size is under 16px */
   @media (max-width:860px){
     input[type=text], input[type=date], input[type=number]{ font-size:16px; padding:11px 12px; }
     .num-wrap input{ padding-right:46px; }
-    /* Safari renders the date value as localized text ("31. jan. 2027"),
-       noticeably wider than Chromium's compact numeric format, and a
-       native date control won't shrink below that content width - give
-       it as much room as possible so it never has to push past its
-       container: tighter group/input padding here, plus a narrower
-       group box below. */
-    input[type=date]{ padding-left:6px; padding-right:4px; }
-    .group{ padding-left:5px; padding-right:5px; }
-    .group .group-label{ left:4px; }
   }
 
   .reset-btn{
@@ -394,11 +412,11 @@
         <div class="field-row two">
           <div>
             <label for="f-start">Start</label>
-            <input type="date" id="f-start" value="2027-01-31">
+            <div class="date-wrap"><input type="date" id="f-start" value="2027-01-31"></div>
           </div>
           <div>
             <label for="f-end">Afslutning</label>
-            <input type="date" id="f-end" value="2027-06-30">
+            <div class="date-wrap"><input type="date" id="f-end" value="2027-06-30"></div>
           </div>
         </div>
       </div>
